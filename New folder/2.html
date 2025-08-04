@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boom From Click Point + Fall</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      background-color: #f0f0f0;
+      position: relative;
+      touch-action: manipulation;
+    }
+
+    .particle {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      pointer-events: none;
+      background-size: contain;
+      background-repeat: no-repeat;
+      animation: boomFall 2.5s ease-out forwards;
+    }
+
+    @keyframes boomFall {
+      0% {
+        transform: translate(0, 0) scale(0);
+        opacity: 1;
+      }
+      30% {
+        transform: translate(var(--tx), var(--ty)) scale(1.2);
+        opacity: 1;
+      }
+      70% {
+        transform: translate(var(--tx), calc(var(--ty) + 100px)) scale(1);
+        opacity: 0.8;
+      }
+      100% {
+        transform: translate(calc(var(--tx) + 0px), calc(var(--ty) + 250px)) rotate(720deg);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <script>
+    const localImages = [
+      "set-small-flowers-transparent-background-psd-file_2.png",
+      "set-small-flowers-transparent-background-psd-file_3.png",
+      "set-small-flowers-transparent-background-psd-file_4.png",
+      "set-small-flowers-transparent-background-psd-file_904887-44.png"
+    ];
+
+    document.addEventListener('click', handleBoom);
+    document.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      handleBoom(e);
+    }, { passive: false });
+
+    function handleBoom(e) {
+      const x = e.clientX || e.touches[0].clientX;
+      const y = e.clientY || e.touches[0].clientY;
+
+      for (let i = 0; i < 16; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+
+        const imgIndex = i % localImages.length;
+        particle.style.backgroundImage = `url('${localImages[imgIndex]}')`;
+
+        // Random boom direction
+        const angle = Math.random() * 2 * Math.PI;
+        const distance = 40 + Math.random() * 60;
+        const tx = Math.cos(angle) * distance;
+        const ty = Math.sin(angle) * distance;
+
+        particle.style.setProperty('--tx', `${tx}px`);
+        particle.style.setProperty('--ty', `${ty}px`);
+
+        // Position it at the exact click/touch point
+        particle.style.left = `${x - 15}px`;
+        particle.style.top = `${y - 15}px`;
+
+        document.body.appendChild(particle);
+
+        setTimeout(() => {
+          particle.remove();
+        }, 3000);
+      }
+    }
+  </script>
+</body>
+</html>
